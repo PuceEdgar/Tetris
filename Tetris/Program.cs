@@ -10,59 +10,112 @@ namespace Tetris
 		static int yLine = 8;
 		static char pieceSymbol = 'X';
 		static List<int> fullLines = [];
-
+		static int score = 0;
+		static ConsoleKeyInfo input;
 		static char[,] field = new char[xLine, yLine];
+		static Piece piece;
 
 		static void Main(string[] args)
 		{
-			Console.WriteLine("Hello, Tetris!");			
+			Console.WriteLine("Hello, Tetris!");
 
 			Console.CursorVisible = false;
 			var random = new Random();
 
-			Piece piece = new(1, random.Next(1, yLine-1));
+			piece = new(1, random.Next(1, yLine - 1));
 
 			CreateMatrixBase();
 
-			Timer gameTimer = new Timer(x =>
+			// Start the inputthread to get live inputs
+			Thread inputThread = new Thread(Input);
+			inputThread.Start();
+
+
+			while (true)
 			{
-				if (isPieceLanded)
+				// INPUT
+				InputHandler(); // Call InputHandler
+				input = new ConsoleKeyInfo(); // Reset input var
+
+
+				//if (isPieceLanded)
+				//{
+				//	GetFullLines();
+				//	piece = new(1, random.Next(1, yLine - 1));
+				//	isPieceLanded = false;
+				//}
+
+				if (field[piece.Xposition + 1, piece.Yposition] == '*' || field[piece.Xposition + 1, piece.Yposition] == pieceSymbol)
 				{
+					isPieceLanded = true;
 					GetFullLines();
-					piece = new(1, random.Next(1, yLine-1));
+					piece = new(1, random.Next(1, yLine - 1));
 					isPieceLanded = false;
+					if (fullLines.Count > 0)
+					{
+						DeleteLines();
+						fullLines = [];
+					}
 				}
-
-				PopulateMatrix(ref piece);
-				PrintMatrix();
-				Console.WriteLine();
-				
-
-				if (fullLines.Count > 0)
+				else
 				{
-					DeleteLines();					
-					fullLines = [];
+					field[piece.Xposition, piece.Yposition] = ' ';
+					piece.Xposition++;
 				}
 
+				//PopulateMatrix(piece);
+				FillMatrix();
+				PrintMatrix();
+				Console.WriteLine($"SCORE: {score}");
 
 				Console.SetCursorPosition(0, 1);
 
+				Thread.Sleep(1000);
+				
 
-			}, null, 1000, 100);
+				
+			}
+		}
 
-			Console.ReadLine();
+		private static void InputHandler()
+		{
+			if (input.Key == ConsoleKey.LeftArrow && piece.Yposition > 1)
+			{
+				field[piece.Xposition, piece.Yposition] = ' ';
+				piece.Yposition = piece.Yposition - 1;
+			}
+			if (input.Key == ConsoleKey.RightArrow && piece.Yposition < yLine - 2)
+			{
+				field[piece.Xposition, piece.Yposition] = ' ';
+				piece.Yposition = piece.Yposition + 1;
+			}
+			if (input.Key == ConsoleKey.DownArrow && piece.Xposition < xLine - 2)
+			{
+				field[piece.Xposition, piece.Yposition] = ' ';
+				piece.Xposition = piece.Xposition + 1;
+			}
+			//PopulateMatrix(piece);
+			
+			FillMatrix();
+			PrintMatrix();
+			Console.SetCursorPosition(0, 1);
+		}
+
+		private static void FillMatrix()
+		{
+			field[piece.Xposition, piece.Yposition] = pieceSymbol;
 		}
 
 		private static void DeleteLines()
 		{
-			foreach (var line in fullLines) 
+			foreach (var line in fullLines)
 			{
-				for (int i = 1; i < yLine-1; i++)
+				for (int i = 1; i < yLine - 1; i++)
 				{
 					field[line, i] = ' ';
 				}
-
-				MoveOtherPiecesDown(line-1);
+				score += 50;
+				MoveOtherPiecesDown(line - 1);
 			}
 		}
 
@@ -74,7 +127,7 @@ namespace Tetris
 				{
 					if (field[x, y] == pieceSymbol)
 					{
-						field[x+1, y] = pieceSymbol;
+						field[x + 1, y] = pieceSymbol;
 						field[x, y] = ' ';
 					}
 				}
@@ -83,14 +136,14 @@ namespace Tetris
 
 		private static void GetFullLines()
 		{
-			for (int i = 1; i < xLine-1; i++)
+			for (int i = 1; i < xLine - 1; i++)
 			{
-				bool[] result = new bool[yLine-2]; 
-				for (int y = 1; y < yLine-1; y++)
+				bool[] result = new bool[yLine - 2];
+				for (int y = 1; y < yLine - 1; y++)
 				{
 					if (field[i, y] == pieceSymbol)
 					{
-						result[y-1] = true;
+						result[y - 1] = true;
 					}
 					else
 					{
@@ -123,7 +176,7 @@ namespace Tetris
 			}
 		}
 
-		private static void PopulateMatrix(ref Piece piece)
+		private static void PopulateMatrix(Piece piece)
 		{
 			char prevXValue = field[piece.Xposition - 1, piece.Yposition];
 			field[piece.Xposition - 1, piece.Yposition] = prevXValue == '*' ? '*' : ' ';
@@ -146,8 +199,17 @@ namespace Tetris
 			}
 		}
 
+		static void Input()
+		{
+			while (true)
+			{
+				// Get input
+				input = Console.ReadKey(true);
+			}
+		}
 
-		private struct Piece(int x, int y)
+
+		private class Piece(int x, int y)
 		{
 			public int Xposition { get; set; } = x;
 			public int Yposition { get; set; } = y;
