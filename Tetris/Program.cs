@@ -26,25 +26,10 @@ namespace Tetris
 
 			CreateMatrixBase();
 
-			// Start the inputthread to get live inputs
-			Thread inputThread = new Thread(Input);
-			inputThread.Start();
-
+			Task.Run(() => InputListener());
 
 			while (true)
 			{
-				// INPUT
-				InputHandler(); // Call InputHandler
-				input = new ConsoleKeyInfo(); // Reset input var
-
-
-				//if (isPieceLanded)
-				//{
-				//	GetFullLines();
-				//	piece = new(1, random.Next(1, yLine - 1));
-				//	isPieceLanded = false;
-				//}
-
 				if (field[piece.Xposition + 1, piece.Yposition] == '*' || field[piece.Xposition + 1, piece.Yposition] == pieceSymbol)
 				{
 					isPieceLanded = true;
@@ -63,17 +48,13 @@ namespace Tetris
 					piece.Xposition++;
 				}
 
-				//PopulateMatrix(piece);
 				FillMatrix();
 				PrintMatrix();
 				Console.WriteLine($"SCORE: {score}");
 
 				Console.SetCursorPosition(0, 1);
 
-				Thread.Sleep(1000);
-				
-
-				
+				Task.Delay(500).Wait();
 			}
 		}
 
@@ -199,12 +180,14 @@ namespace Tetris
 			}
 		}
 
-		static void Input()
+		static void InputListener()
 		{
 			while (true)
 			{
 				// Get input
 				input = Console.ReadKey(true);
+				InputHandler(); // Call InputHandler
+				input = new ConsoleKeyInfo();
 			}
 		}
 
