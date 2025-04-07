@@ -3,12 +3,32 @@ namespace Tetris
 {
 	internal class JShape : IPieceShape
 	{
-		public char[,] Up => new char[,] { { 'X', ' ', ' ' }, { 'X', 'X', 'X' } };
+		char[,] Up => new char[,] { { MovingPiecePattern, EmptySpace, EmptySpace }, { MovingPiecePattern, MovingPiecePattern, MovingPiecePattern } };
 
-		public char[,] Left => new char[,] { { 'X', 'X' }, { 'X', ' '}, { 'X', ' ' } };
+		char[,] Left => new char[,] { { MovingPiecePattern, MovingPiecePattern }, { MovingPiecePattern, EmptySpace }, { MovingPiecePattern, EmptySpace } };
 
-		public char[,] Down => new char[,] { { 'X', 'X', 'X' }, { ' ', ' ', 'X' }};
+		char[,] Down => new char[,] { { MovingPiecePattern, MovingPiecePattern, MovingPiecePattern }, { EmptySpace, EmptySpace, MovingPiecePattern } };
 
-		public char[,] Right => new char[,] { { ' ', 'X' }, { ' ', 'X' }, { 'X', 'X' } };
+		char[,] Right => new char[,] { { EmptySpace, MovingPiecePattern }, { EmptySpace, MovingPiecePattern }, { MovingPiecePattern, MovingPiecePattern } };
+
+		private char[,]? currentShape;
+		public char[,] CurrentShape
+		{
+			get
+			{
+				return Direction switch
+				{
+					PieceDirection.UP => Up,
+					PieceDirection.DOWN => Down,
+					PieceDirection.LEFT => Left,
+					PieceDirection.RIGHT => Right,
+					_ => Up
+				};
+			}
+
+			set => currentShape = value;
+		}
+
+		public PieceDirection Direction { get; set; }
 	}
 }

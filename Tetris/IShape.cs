@@ -3,9 +3,28 @@ namespace Tetris
 {
 	internal class IShape : IPieceShape
 	{
-		public char[,] Up  => new char[,] { { 'X', 'X', 'X', 'X' }, { ' ',  ' ', ' ', ' ' } };
-		public char[,] Down => new char[,] { { ' ', ' ', ' ', ' ' }, { 'X', 'X', 'X', 'X' } };
-		public char[,] Left => new char[,] { { 'X', ' '}, { 'X', ' ' }, { 'X', ' ' }, { 'X', ' ' } };
-		public char[,] Right => new char[,] { { ' ', 'X' }, { ' ', 'X' }, { ' ', 'X' }, { ' ', 'X' } };
+		char[,] Up => new char[,] { { MovingPiecePattern, MovingPiecePattern, MovingPiecePattern, MovingPiecePattern } };
+		char[,] Down => new char[,] { { MovingPiecePattern, MovingPiecePattern, MovingPiecePattern, MovingPiecePattern } };
+		char[,] Left => new char[,] { { MovingPiecePattern, EmptySpace }, { MovingPiecePattern, EmptySpace }, { MovingPiecePattern, EmptySpace }, { MovingPiecePattern, EmptySpace } };
+		char[,] Right => new char[,] { { EmptySpace, MovingPiecePattern }, { EmptySpace, MovingPiecePattern }, { EmptySpace, MovingPiecePattern }, { EmptySpace, MovingPiecePattern } };
+
+		private char[,]? currentShape;
+		public char[,] CurrentShape
+		{
+			get { return Direction switch
+			{
+				PieceDirection.UP => Up,
+				PieceDirection.DOWN => Down,
+				PieceDirection.LEFT => Left,
+				PieceDirection.RIGHT => Right,
+				_ => Up
+			}; } 
+			
+			set => currentShape = value;
+		}
+
+		public PieceDirection Direction { get; set; }
+
+		
 	}
 }

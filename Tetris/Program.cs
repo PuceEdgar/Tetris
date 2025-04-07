@@ -1,12 +1,13 @@
 ﻿
+global using static Tetris.Constants;
+
 namespace Tetris
 {
 	internal class Program
 	{
-		//static bool isPieceLanded = false;
-		static int xLine = 12;
-		static int yLine = 8;
-		static char pieceSymbol = 'X';
+		static bool isPieceLanded = false;
+		static int xLine = 15;
+		static int yLine = 20;
 		static List<int> fullLines = [];
 		static int score = 0;
 		static ConsoleKeyInfo input;
@@ -20,7 +21,7 @@ namespace Tetris
 			Console.CursorVisible = false;
 			var random = new Random();
 
-			piece = new(1, random.Next(1, yLine - 1));
+			piece = new(1, 6, GetShape(random.Next(5, 6)));
 
 			CreateMatrixBase();
 
@@ -28,62 +29,146 @@ namespace Tetris
 
 			while (true)
 			{
-				if (field[piece.Xposition + 1, piece.Yposition] == '*' || field[piece.Xposition + 1, piece.Yposition] == pieceSymbol)
+				//|| field[piece.Xposition + 1, piece.Yposition] == landedPieceSymbol
+				if (IsDownCollision())
 				{
-					//isPieceLanded = true;
+					isPieceLanded = true;
 					GetFullLines();
-					piece = new(1, random.Next(1, yLine - 1));
-					//isPieceLanded = false;
+					//piece = new(1, random.Next(1, yLine - 1), new OShape());
+					
 					if (fullLines.Count > 0)
 					{
 						DeleteLines();
 						fullLines = [];
 					}
+
+					FillMatrix();
+					PrintMatrix();
+					Console.WriteLine($"SCORE: {score}");
+					piece = new(1, 6, GetShape(random.Next(5, 6)));
+					Console.SetCursorPosition(0, 1);
 				}
 				else
 				{
-					field[piece.Xposition, piece.Yposition] = ' ';
-					piece.Xposition++;
+					isPieceLanded= false;
+					//field[piece.Xposition, piece.Yposition] = ' ';
+					//piece.Xposition++;
+					MoviePieceDown();
+
+					FillMatrix();
+					PrintMatrix();
+					Console.WriteLine($"SCORE: {score}");
+
+					Console.SetCursorPosition(0, 1);
 				}
 
-				FillMatrix();
-				PrintMatrix();
-				Console.WriteLine($"SCORE: {score}");
-
-				Console.SetCursorPosition(0, 1);
+					
 
 				Task.Delay(500).Wait();
 			}
 		}
 
+		private static bool IsDownCollision()
+		{
+			bool isCollision = false;
+			for (int i = 0; i < piece.Shape.CurrentShape.GetLength(0); i++)
+			{
+				for (int j = 0; j < piece.Shape.CurrentShape.GetLength(1); j++)
+				{
+					if (field[piece.Xposition + i, piece.Yposition + j] != EmptySpace && (
+						field[piece.Xposition + i + 1, piece.Yposition + j] == LandedPiecePattern 
+						|| field[piece.Xposition + i + 1, piece.Yposition + j] == Border)
+						)
+					{
+						isCollision = true;
+						break;
+					}
+					//if (field[piece.Xposition + piece.Shape.CurrentShape.GetLength(0), piece.Yposition] == '*' 
+					//	|| field[piece.Xposition + piece.Shape.CurrentShape.GetLength(0), piece.Yposition] == landedPieceSymbol						
+					//	)
+					//{
+					//	isCollision = true;
+					//	break;
+					//}
+				}
+			}
+			//return field[piece.Xposition + piece.Shape.CurrentShape.Rank, piece.Yposition] == '*' || field[piece.Xposition + piece.Shape.CurrentShape.Rank, piece.Yposition] == landedPieceSymbol;
+
+			return isCollision;
+		}
+
+		private static void MoviePieceDown()
+		{
+			ClearPreviousPosition();
+			piece.Xposition++;
+		}
+
+		private static void ClearPreviousPosition()
+		{
+			for (int i = 0; i < piece.Shape.CurrentShape.GetLength(0); i++)
+			{
+				for (int j = 0; j < piece.Shape.CurrentShape.GetLength(1); j++)
+				{
+					field[piece.Xposition + i, piece.Yposition + j] = ' ';
+				}
+			}
+		}
+
 		private static void InputHandler()
 		{
-			if (input.Key == ConsoleKey.LeftArrow && piece.Yposition > 1)
+
+			if (input.Key == ConsoleKey.LeftArrow && field[piece.Xposition, piece.Yposition - 1] == ' ')
 			{
-				field[piece.Xposition, piece.Yposition] = ' ';
+				ClearPreviousPosition();
+				//field[piece.Xposition, piece.Yposition] = ' ';
 				piece.Yposition = piece.Yposition - 1;
 			}
-			if (input.Key == ConsoleKey.RightArrow && piece.Yposition < yLine - 2)
+			if (input.Key == ConsoleKey.RightArrow && field[piece.Xposition, piece.Yposition + piece.Shape.CurrentShape.GetLength(1)] == ' ')
 			{
-				field[piece.Xposition, piece.Yposition] = ' ';
+				ClearPreviousPosition();
+				//field[piece.Xposition, piece.Yposition] = ' ';
 				piece.Yposition = piece.Yposition + 1;
 			}
-			if (input.Key == ConsoleKey.DownArrow && piece.Xposition < xLine - 2)
+			if (input.Key == ConsoleKey.DownArrow && field[piece.Xposition + piece.Shape.CurrentShape.GetLength(0), piece.Yposition] == ' ')
 			{
-				field[piece.Xposition, piece.Yposition] = ' ';
+				ClearPreviousPosition();
+				//field[piece.Xposition, piece.Yposition] = ' ';
 				piece.Xposition = piece.Xposition + 1;
-			}
-			
-			FillMatrix();
-			PrintMatrix();
-			
-			Console.SetCursorPosition(0, 1);
+			}			
+
+			//FillMatrix();
+			//PrintMatrix();
+
+			//Console.SetCursorPosition(0, 1);
+
 			//Task.Delay(50).Wait();
 		}
 
 		private static void FillMatrix()
 		{
-			field[piece.Xposition, piece.Yposition] = pieceSymbol;
+			for (int i = 0; i < piece.Shape.CurrentShape.GetLength(0); i++)
+			{				
+				for (int j = 0; j < piece.Shape.CurrentShape.GetLength(1); j++)
+				{
+					if (isPieceLanded)
+					{
+						
+							field[piece.Xposition + i, piece.Yposition + j] = 
+							piece.Shape.CurrentShape[i, j] == MovingPiecePattern ? LandedPiecePattern : 
+							field[piece.Xposition + i, piece.Yposition + j] == LandedPiecePattern ? LandedPiecePattern : EmptySpace;
+						
+						
+					}
+					else
+					{
+						
+							field[piece.Xposition + i, piece.Yposition + j] = field[piece.Xposition + i, piece.Yposition + j] == EmptySpace ? piece.Shape.CurrentShape[i, j] : field[piece.Xposition + i, piece.Yposition + j];
+						
+							
+					}
+					
+				}
+			}
 		}
 
 		private static void DeleteLines()
@@ -105,9 +190,9 @@ namespace Tetris
 			{
 				for (int y = 0; y < yLine; y++)
 				{
-					if (field[x, y] == pieceSymbol)
+					if (field[x, y] == LandedPiecePattern)
 					{
-						field[x + 1, y] = pieceSymbol;
+						field[x + 1, y] = LandedPiecePattern;
 						field[x, y] = ' ';
 					}
 				}
@@ -121,7 +206,7 @@ namespace Tetris
 				bool[] result = new bool[yLine - 2];
 				for (int y = 1; y < yLine - 1; y++)
 				{
-					if (field[i, y] == pieceSymbol)
+					if (field[i, y] == LandedPiecePattern)
 					{
 						result[y - 1] = true;
 					}
@@ -181,20 +266,21 @@ namespace Tetris
 		}
 
 
-		private class Piece(int x, int y)
+		private class Piece(int x, int y, IPieceShape pieceShape)
 		{
 			public int Xposition { get; set; } = x;
 			public int Yposition { get; set; } = y;
+			public IPieceShape Shape { get; set; } = pieceShape;
 		}
 
 		//private static void PopulateMatrix(Piece piece)
 		//{
 		//	char prevXValue = field[piece.Xposition - 1, piece.Yposition];
 		//	field[piece.Xposition - 1, piece.Yposition] = prevXValue == '*' ? '*' : ' ';
-		//	field[piece.Xposition, piece.Yposition] = pieceSymbol;
+		//	field[piece.Xposition, piece.Yposition] = landedPieceSymbol;
 		//	char nextXValue = field[++piece.Xposition, piece.Yposition];
 
-		//	isPieceLanded = nextXValue == '*' || nextXValue == pieceSymbol;
+		//	isPieceLanded = nextXValue == '*' || nextXValue == landedPieceSymbol;
 		//}
 
 	}

@@ -2,12 +2,29 @@
 {
 	internal class SShape : IPieceShape
 	{
-		public char[,] Up => new char[,] { { ' ', 'X', 'X' }, { 'X', 'X', ' ' } };
+		char[,] Up => new char[,] { { EmptySpace, MovingPiecePattern, MovingPiecePattern }, { MovingPiecePattern, MovingPiecePattern, EmptySpace } };
+		char[,] Left => new char[,] { { MovingPiecePattern, EmptySpace }, { MovingPiecePattern, MovingPiecePattern }, { EmptySpace, MovingPiecePattern } };
+		char[,] Down => new char[,] { { EmptySpace, MovingPiecePattern, MovingPiecePattern }, { MovingPiecePattern, MovingPiecePattern, EmptySpace } };
+		char[,] Right => new char[,] { { MovingPiecePattern, EmptySpace }, { MovingPiecePattern, MovingPiecePattern }, { EmptySpace, MovingPiecePattern } };
 
-		public char[,] Left => new char[,] { { 'X', ' ' }, { 'X', 'X' }, { ' ', 'X' } };
+		char[,]? currentShape;
+		public char[,] CurrentShape
+		{
+			get
+			{
+				return Direction switch
+				{
+					PieceDirection.UP => Up,
+					PieceDirection.DOWN => Down,
+					PieceDirection.LEFT => Left,
+					PieceDirection.RIGHT => Right,
+					_ => Up
+				};
+			}
 
-		public char[,] Down => new char[,] { { ' ', 'X', 'X' }, { 'X', 'X', ' ' } };
+			set => currentShape = value;
+		}
 
-		public char[,] Right => new char[,] { { 'X', ' ' }, { 'X', 'X' }, { ' ', 'X' } };
+		public PieceDirection Direction { get; set; }
 	}
 }

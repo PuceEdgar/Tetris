@@ -3,12 +3,29 @@ namespace Tetris
 {
 	internal class ZShape : IPieceShape
 	{
-		public char[,] Up => new char[,] { { 'X', 'X', ' ' }, { ' ', 'X', 'X' } };
+		char[,] Up => new char[,] { { MovingPiecePattern, MovingPiecePattern, EmptySpace }, { EmptySpace, MovingPiecePattern, MovingPiecePattern } };
+		char[,] Left => new char[,] { { EmptySpace, MovingPiecePattern }, { MovingPiecePattern, MovingPiecePattern }, { MovingPiecePattern, EmptySpace } };
+		char[,] Down => new char[,] { { MovingPiecePattern, MovingPiecePattern, EmptySpace }, { EmptySpace, MovingPiecePattern, MovingPiecePattern } };
+		char[,] Right => new char[,] { { EmptySpace, MovingPiecePattern }, { MovingPiecePattern, MovingPiecePattern }, { MovingPiecePattern, EmptySpace } };
 
-		public char[,] Left => new char[,] { { ' ', 'X' }, { 'X', 'X' }, { 'X', ' ' } };
+		char[,]? currentShape;
+		public char[,] CurrentShape
+		{
+			get
+			{
+				return Direction switch
+				{
+					PieceDirection.UP => Up,
+					PieceDirection.DOWN => Down,
+					PieceDirection.LEFT => Left,
+					PieceDirection.RIGHT => Right,
+					_ => Up
+				};
+			}
 
-		public char[,] Down => new char[,] { { 'X', 'X', ' ' }, { ' ', 'X', 'X' } };
+			set => currentShape = value;
+		}
 
-		public char[,] Right => new char[,] { { ' ', 'X' }, { 'X', 'X' }, { 'X', ' ' } };
+		public PieceDirection Direction { get; set; }
 	}
 }
