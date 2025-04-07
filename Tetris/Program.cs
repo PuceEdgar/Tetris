@@ -7,7 +7,7 @@ namespace Tetris
 	{
 		static bool isPieceLanded = false;
 		static int xLine = 15;
-		static int yLine = 20;
+		static int yLine = 10;
 		static List<int> fullLines = [];
 		static int score = 0;
 		static ConsoleKeyInfo input;
@@ -21,7 +21,7 @@ namespace Tetris
 			Console.CursorVisible = false;
 			var random = new Random();
 
-			piece = new(1, 6, GetShape(random.Next(5, 6)));
+			piece = new(1, 6, GetShape(random.Next(6, 6)));
 
 			CreateMatrixBase();
 
@@ -42,11 +42,11 @@ namespace Tetris
 						fullLines = [];
 					}
 
-					FillMatrix();
-					PrintMatrix();
-					Console.WriteLine($"SCORE: {score}");
-					piece = new(1, 6, GetShape(random.Next(5, 6)));
-					Console.SetCursorPosition(0, 1);
+					//FillMatrix();
+					//PrintMatrix();
+					//Console.WriteLine($"SCORE: {score}");
+					piece = new(1, 6, GetShape(random.Next(6, 6)));
+					//Console.SetCursorPosition(0, 1);
 				}
 				else
 				{
@@ -55,14 +55,14 @@ namespace Tetris
 					//piece.Xposition++;
 					MoviePieceDown();
 
-					FillMatrix();
-					PrintMatrix();
-					Console.WriteLine($"SCORE: {score}");
-
-					Console.SetCursorPosition(0, 1);
+					
 				}
 
-					
+				FillMatrix();
+				PrintMatrix();
+				Console.WriteLine($"SCORE: {score}");
+
+				Console.SetCursorPosition(0, 1);
 
 				Task.Delay(500).Wait();
 			}
@@ -134,7 +134,12 @@ namespace Tetris
 				ClearPreviousPosition();
 				//field[piece.Xposition, piece.Yposition] = ' ';
 				piece.Xposition = piece.Xposition + 1;
-			}			
+			}
+			if (input.Key == ConsoleKey.R)
+			{
+				ClearPreviousPosition();
+				piece.Shape.Direction = NextDirection();
+			}
 
 			//FillMatrix();
 			//PrintMatrix();
@@ -142,6 +147,27 @@ namespace Tetris
 			//Console.SetCursorPosition(0, 1);
 
 			//Task.Delay(50).Wait();
+		}
+
+		private static PieceDirection NextDirection()
+		{
+			PieceDirection newDirection = PieceDirection.UP;
+			switch (piece.Shape.Direction)
+			{
+				case PieceDirection.UP:
+					newDirection =  PieceDirection.LEFT;
+					break;
+				case PieceDirection.LEFT:
+					newDirection = PieceDirection.DOWN;
+					break;
+				case PieceDirection.DOWN:
+					newDirection = PieceDirection.RIGHT;
+					break;
+				case PieceDirection.RIGHT:
+					newDirection = PieceDirection.UP;	
+					break;
+			}
+			return newDirection;
 		}
 
 		private static void FillMatrix()
