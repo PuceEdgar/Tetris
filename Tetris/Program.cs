@@ -1,11 +1,9 @@
 ﻿
-
-
 namespace Tetris
 {
 	internal class Program
 	{
-		static bool isPieceLanded = false;
+		//static bool isPieceLanded = false;
 		static int xLine = 12;
 		static int yLine = 8;
 		static char pieceSymbol = 'X';
@@ -32,10 +30,10 @@ namespace Tetris
 			{
 				if (field[piece.Xposition + 1, piece.Yposition] == '*' || field[piece.Xposition + 1, piece.Yposition] == pieceSymbol)
 				{
-					isPieceLanded = true;
+					//isPieceLanded = true;
 					GetFullLines();
 					piece = new(1, random.Next(1, yLine - 1));
-					isPieceLanded = false;
+					//isPieceLanded = false;
 					if (fullLines.Count > 0)
 					{
 						DeleteLines();
@@ -75,11 +73,12 @@ namespace Tetris
 				field[piece.Xposition, piece.Yposition] = ' ';
 				piece.Xposition = piece.Xposition + 1;
 			}
-			//PopulateMatrix(piece);
 			
 			FillMatrix();
 			PrintMatrix();
+			
 			Console.SetCursorPosition(0, 1);
+			//Task.Delay(50).Wait();
 		}
 
 		private static void FillMatrix()
@@ -155,17 +154,7 @@ namespace Tetris
 					}
 				}
 			}
-		}
-
-		private static void PopulateMatrix(Piece piece)
-		{
-			char prevXValue = field[piece.Xposition - 1, piece.Yposition];
-			field[piece.Xposition - 1, piece.Yposition] = prevXValue == '*' ? '*' : ' ';
-			field[piece.Xposition, piece.Yposition] = pieceSymbol;
-			char nextXValue = field[++piece.Xposition, piece.Yposition];
-
-			isPieceLanded = nextXValue == '*' || nextXValue == pieceSymbol;
-		}
+		}		
 
 		private static void PrintMatrix()
 		{
@@ -197,6 +186,16 @@ namespace Tetris
 			public int Xposition { get; set; } = x;
 			public int Yposition { get; set; } = y;
 		}
+
+		//private static void PopulateMatrix(Piece piece)
+		//{
+		//	char prevXValue = field[piece.Xposition - 1, piece.Yposition];
+		//	field[piece.Xposition - 1, piece.Yposition] = prevXValue == '*' ? '*' : ' ';
+		//	field[piece.Xposition, piece.Yposition] = pieceSymbol;
+		//	char nextXValue = field[++piece.Xposition, piece.Yposition];
+
+		//	isPieceLanded = nextXValue == '*' || nextXValue == pieceSymbol;
+		//}
 
 	}
 }
