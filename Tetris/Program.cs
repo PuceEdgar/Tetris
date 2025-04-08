@@ -21,7 +21,7 @@ namespace Tetris
 			Console.CursorVisible = false;
 			var random = new Random();
 
-			piece = new(1, 6, GetShape(random.Next(6, 6)));
+			piece = new(1, 6, GetShape(random.Next(1, 8)));
 
 			CreateMatrixBase();
 
@@ -42,24 +42,26 @@ namespace Tetris
 						fullLines = [];
 					}
 
-					//FillMatrix();
-					//PrintMatrix();
+					FillMatrix();
+					PrintMatrix();
 					//Console.WriteLine($"SCORE: {score}");
-					piece = new(1, 6, GetShape(random.Next(6, 6)));
+					piece = new(1, 6, GetShape(random.Next(1, 8)));
 					//Console.SetCursorPosition(0, 1);
 				}
 				else
 				{
 					isPieceLanded= false;
+
 					//field[piece.Xposition, piece.Yposition] = ' ';
 					//piece.Xposition++;
 					MoviePieceDown();
+					FillMatrix();
+					PrintMatrix();
 
-					
 				}
 
-				FillMatrix();
-				PrintMatrix();
+				//FillMatrix();
+				//PrintMatrix();
 				Console.WriteLine($"SCORE: {score}");
 
 				Console.SetCursorPosition(0, 1);
